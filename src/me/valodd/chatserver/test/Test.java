@@ -1,11 +1,24 @@
 package me.valodd.chatserver.test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import me.valodd.chatserver.network.BufferConnection;
+import me.valodd.chatserver.network.NetworkManager;
 
 public class Test {
 
 	public Test() {
-		testBufferConnection();
+		testServerConnection();
+		// testBufferConnection();
+	}
+
+	private void testServerConnection() {
+		try {
+			NetworkManager nm = new NetworkManager(InetAddress.getByName("127.0.0.1"), 25565);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void testBufferConnection() { // It Works !

@@ -1,5 +1,6 @@
 package me.valodd.chatserver.network.packet.boths;
 
+import me.valodd.chatserver.client.Client;
 import me.valodd.chatserver.network.BufferConnection;
 import me.valodd.chatserver.network.Packet;
 import me.valodd.chatserver.network.packet.PACKETS;
@@ -9,8 +10,8 @@ public class PacketConnection extends Packet {
 	private int nbClients;
 	private String clients;
 
-	public PacketConnection() {
-		super();
+	public PacketConnection(Client owner) {
+		super(owner);
 	}
 
 	@Override
@@ -23,6 +24,17 @@ public class PacketConnection extends Packet {
 		bc.writeString(username);
 		bc.writeInt(nbClients);
 		bc.writeString(clients);
+	}
+
+	@Override
+	public void executePacket() {
+		getOwner().setName(getUsername());
+		System.out.println("New Client: " + getUsername());
+		PacketConnection pc = new PacketConnection(getOwner());
+		pc.setUsername("0ddlyoko");
+		pc.setNbClients(1);
+		pc.setClients("0ddlyoko");
+		getOwner().getNetworkClient().sendPacket(pc);
 	}
 
 	@Override

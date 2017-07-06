@@ -5,10 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import me.valodd.chatserver.client.Client;
 import me.valodd.chatserver.network.packet.PACKETS;
 import me.valodd.chatserver.network.packet.boths.PacketConnection;
 
 public class NetworkClient {
+	private Client c;
 	private Socket socket;
 	private Thread threadPacketListener;
 	private boolean end = false;
@@ -39,14 +41,9 @@ public class NetworkClient {
 			PACKETS packetsID = PACKETS.getByID(packetID);
 			switch (packetsID) {
 			case PACKETCONNECTION: // PacketConnection
-				PacketConnection packet = new PacketConnection();
+				PacketConnection packet = new PacketConnection(c);
 				packet.read(bc);
-				System.out.println("New Client: " + packet.getUsername());
-				PacketConnection pc = new PacketConnection();
-				pc.setUsername("0ddlyoko");
-				pc.setNbClients(1);
-				pc.setClients("0ddlyoko");
-				sendPacket(pc);
+				packet.executePacket();
 				break;
 			default:
 				break;
@@ -83,5 +80,13 @@ public class NetworkClient {
 			}
 		});
 		threadPacketListener.start();
+	}
+
+	public void setClient(Client c) {
+		this.c = c;
+	}
+
+	public Client getClient() {
+		return c;
 	}
 }

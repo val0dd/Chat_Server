@@ -1,5 +1,7 @@
 package me.valodd.chatserver.network;
 
+import me.valodd.chatserver.client.Client;
+
 /**
  * This class will be extended by all Class Packet to send packet over the
  * Internet.<br />
@@ -12,8 +14,10 @@ package me.valodd.chatserver.network;
  */
 public abstract class Packet implements IPacket {
 	private BufferConnection bc;
+	private Client owner;
 
-	public Packet() {
+	public Packet(Client owner) {
+		this.owner = owner;
 		bc = new BufferConnection(32);
 	}
 
@@ -32,5 +36,9 @@ public abstract class Packet implements IPacket {
 
 	public BufferConnection getBufferConnection() {
 		return bc;
+	}
+
+	public Client getOwner() {
+		return owner;
 	}
 }

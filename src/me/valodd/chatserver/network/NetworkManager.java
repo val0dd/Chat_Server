@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import me.valodd.chatserver.client.Client;
+import me.valodd.chatserver.client.ClientManager;
 
 public class NetworkManager {
 	private InetAddress inetAddress;
@@ -14,7 +15,6 @@ public class NetworkManager {
 	private ServerSocket serverSocket;
 	private Thread threadPacketListener;
 	private boolean end = false;
-	private Client client; // TODO JUST TO TEST
 
 	public NetworkManager(InetAddress ia, int port) {
 		this.inetAddress = ia;
@@ -50,7 +50,7 @@ public class NetworkManager {
 					try {
 						Socket s = serverSocket.accept();
 						System.out.println("New Client:" + s.getInetAddress().getHostName());
-						client = new Client(new NetworkClient(s));
+						ClientManager.addClient(new Client(new NetworkClient(s)));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

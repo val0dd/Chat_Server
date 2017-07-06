@@ -29,6 +29,12 @@ public interface IPacket {
 	void writePacket(BufferConnection bc);
 
 	/**
+	 * Execute Specific Action
+	 * 
+	 */
+	void executePacket();
+
+	/**
 	 * get Packet ID
 	 * 
 	 * @return Specific Packets ID

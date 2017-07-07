@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import me.valodd.chatserver.client.Client;
+import me.valodd.chatserver.client.ClientManager;
 import me.valodd.chatserver.network.packet.PACKETS;
 import me.valodd.chatserver.network.packet.boths.PacketConnection;
 
@@ -51,6 +52,16 @@ public class NetworkClient {
 		}
 	}
 
+	private void stop() {
+		end = true;
+		try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		ClientManager.removeClient(getClient());
+	}
+
 	private void startInputListening() {
 		threadPacketListener = new Thread(new Runnable() {
 
@@ -73,7 +84,8 @@ public class NetworkClient {
 								}
 							}).start();
 						}
-					} catch (IOException e) {
+					} catch (IOException e) { // DISCONNECTED
+						stop();
 						e.printStackTrace();
 					}
 				}

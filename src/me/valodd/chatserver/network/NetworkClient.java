@@ -1,7 +1,6 @@
 package me.valodd.chatserver.network;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -23,14 +22,17 @@ public class NetworkClient {
 
 	public void sendPacket(Packet packet) {
 		packet.write();
-		_sendPacket(new BufferConnection(packet.getBufferConnection().getSizeBuff() + 4)
-				.writeInt(packet.getBufferConnection().getSizeBuff()).writeBytes(packet.getBufferConnection()));
+		_sendPacket(packet.getBufferConnection());
 	}
 
 	private void _sendPacket(BufferConnection bc) {
 		try {
-			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-			dos.write(bc.getAllBytes());
+			int size = bc.getSizeBuff();
+			socket.getOutputStream().write(size >> 24);
+			socket.getOutputStream().write(size >> 16);
+			socket.getOutputStream().write(size >> 8);
+			socket.getOutputStream().write(size >> 0);
+			socket.getOutputStream().write(bc.getAllBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -86,7 +88,6 @@ public class NetworkClient {
 						}
 					} catch (IOException e) { // DISCONNECTED
 						stop();
-						e.printStackTrace();
 					}
 				}
 			}

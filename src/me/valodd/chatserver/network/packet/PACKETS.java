@@ -1,7 +1,8 @@
 package me.valodd.chatserver.network.packet;
 
 public enum PACKETS {
-	PACKETCONNECTION(1);
+	PACKETCONNECTION(1),
+	PACKETUSERLOGIN(2);
 
 	private int id;
 

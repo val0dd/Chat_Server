@@ -15,7 +15,7 @@ public class Test {
 
 	private void testServerConnection() {
 		try {
-			NetworkManager nm = new NetworkManager(InetAddress.getByName("127.0.0.1"), 25565);
+			NetworkManager nm = new NetworkManager(InetAddress.getByName("127.0.0.1"), NetworkManager.PORT);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

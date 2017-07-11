@@ -5,9 +5,11 @@ import me.valodd.chatserver.client.ClientManager;
 import me.valodd.chatserver.network.BufferConnection;
 import me.valodd.chatserver.network.Packet;
 import me.valodd.chatserver.network.packet.PACKETS;
+import me.valodd.chatserver.network.packet.out.PacketUserLogin;
 
 public class PacketConnection extends Packet {
 	private String username;
+	private String password;
 	private int nbClients;
 	private String clients;
 
@@ -18,6 +20,7 @@ public class PacketConnection extends Packet {
 	@Override
 	public void readPacket(BufferConnection bc) {
 		username = bc.readString();
+		password = bc.readString();
 	}
 
 	@Override
@@ -30,9 +33,10 @@ public class PacketConnection extends Packet {
 	@Override
 	public void executePacket() {
 		getOwner().setName(getUsername());
-		System.out.println("New Client: " + getUsername());
 		StringBuilder cs = new StringBuilder();
 		for (Client c : ClientManager.getClients()) {
+			if (c != getOwner())
+				c.getNetworkClient().sendPacket(new PacketUserLogin(c).setClient(getOwner()));
 			cs.append(c.getName()).append(",");
 		}
 		getOwner().getNetworkClient().sendPacket(new PacketConnection(getOwner()).setUsername(getUsername())
@@ -51,6 +55,10 @@ public class PacketConnection extends Packet {
 
 	public String getUsername() {
 		return username;
+	}
+
+	public String getPassword() {
+		return password;
 	}
 
 	public PacketConnection setNbClients(int nbClients) {

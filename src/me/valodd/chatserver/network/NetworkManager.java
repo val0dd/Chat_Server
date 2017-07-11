@@ -10,6 +10,7 @@ import me.valodd.chatserver.client.Client;
 import me.valodd.chatserver.client.ClientManager;
 
 public class NetworkManager {
+	public static final int PORT = 42157;
 	private InetAddress inetAddress;
 	private int port;
 	private ServerSocket serverSocket;

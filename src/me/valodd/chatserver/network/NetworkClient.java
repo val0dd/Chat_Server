@@ -8,6 +8,7 @@ import me.valodd.chatserver.client.ClientManager;
 import me.valodd.chatserver.network.packet.PACKETS;
 import me.valodd.chatserver.network.packet.boths.PacketConnection;
 import me.valodd.chatserver.network.packet.boths.PacketMessage;
+import me.valodd.chatserver.network.packet.out.PacketUserLogout;
 
 public class NetworkClient {
 	private Client c;
@@ -34,7 +35,7 @@ public class NetworkClient {
 			socket.getOutputStream().write(size >> 0);
 			socket.getOutputStream().write(bc.getAllBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			stop();
 		}
 	}
 
@@ -50,6 +51,9 @@ public class NetworkClient {
 			case PACKETMESSAGE: // PacketMessage
 				packet = new PacketMessage(c);
 				break;
+			case PACKETUSERLOGOUT: // PacketUserLogout
+				packet = new PacketUserLogout(c);
+				break;
 			default:
 				break;
 			}
@@ -61,11 +65,16 @@ public class NetworkClient {
 	}
 
 	private void stop() {
-		end = true;
-		try {
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (!end) {
+			end = true;
+			for (Client c : ClientManager.getClients())
+				if (c != getClient())
+					c.getNetworkClient().sendPacket(new PacketUserLogout(getClient()).setClient(getClient()));
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		ClientManager.removeClient(getClient());
 	}
@@ -78,24 +87,28 @@ public class NetworkClient {
 				while (!end) {
 					try {
 						int ch1 = socket.getInputStream().read();
-						int ch2 = socket.getInputStream().read();
-						int ch3 = socket.getInputStream().read();
-						int ch4 = socket.getInputStream().read();
-						int length = (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0);
-						if (length > 0) {
-							BufferConnection bc = new BufferConnection(length);
-							byte[] message = new byte[length];
-							socket.getInputStream().read(message, 0, length);
-							bc.writeBytes(message);
-							new Thread(new Runnable() {
+						if (ch1 == -1) {
+							stop();
+						} else {
+							int ch2 = socket.getInputStream().read();
+							int ch3 = socket.getInputStream().read();
+							int ch4 = socket.getInputStream().read();
+							int length = (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0);
+							if (length > 0) {
+								BufferConnection bc = new BufferConnection(length);
+								byte[] message = new byte[length];
+								socket.getInputStream().read(message, 0, length);
+								bc.writeBytes(message);
+								new Thread(new Runnable() {
 
-								@Override
-								public void run() {
-									onPacketReceive(bc);
-								}
-							}).start();
+									@Override
+									public void run() {
+										onPacketReceive(bc);
+									}
+								}).start();
+							}
 						}
-					} catch (IOException e) { // DISCONNECTED
+					} catch (IOException ex) { // DISCONNECTED
 						stop();
 					}
 				}

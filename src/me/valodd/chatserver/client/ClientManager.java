@@ -14,7 +14,8 @@ public class ClientManager {
 		clients.remove(c);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Client> getClients() {
-		return clients;
+		return (List<Client>) ((ArrayList<Client>) clients).clone();
 	}
 }

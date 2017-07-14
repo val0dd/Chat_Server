@@ -3,7 +3,8 @@ package me.valodd.chatserver.network.packet;
 public enum PACKETS {
 	PACKETCONNECTION(1),
 	PACKETUSERLOGIN(2),
-	PACKETMESSAGE(3);
+	PACKETMESSAGE(3),
+	PACKETUSERLOGOUT(4);
 
 	private int id;
 

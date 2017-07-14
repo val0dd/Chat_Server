@@ -1,6 +1,5 @@
 package me.valodd.chatserver.network;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -8,6 +7,7 @@ import me.valodd.chatserver.client.Client;
 import me.valodd.chatserver.client.ClientManager;
 import me.valodd.chatserver.network.packet.PACKETS;
 import me.valodd.chatserver.network.packet.boths.PacketConnection;
+import me.valodd.chatserver.network.packet.boths.PacketMessage;
 
 public class NetworkClient {
 	private Client c;
@@ -42,14 +42,20 @@ public class NetworkClient {
 		if ("-VAL0DD-".equalsIgnoreCase(bc.readString())) {
 			int packetID = bc.readInt();
 			PACKETS packetsID = PACKETS.getByID(packetID);
+			Packet packet = null;
 			switch (packetsID) {
 			case PACKETCONNECTION: // PacketConnection
-				PacketConnection packet = new PacketConnection(c);
-				packet.read(bc);
-				packet.executePacket();
+				packet = new PacketConnection(c);
+				break;
+			case PACKETMESSAGE: // PacketMessage
+				packet = new PacketMessage(c);
 				break;
 			default:
 				break;
+			}
+			if (packet != null) {
+				packet.read(bc);
+				packet.executePacket();
 			}
 		}
 	}
@@ -71,12 +77,15 @@ public class NetworkClient {
 			public void run() {
 				while (!end) {
 					try {
-						DataInputStream dis = new DataInputStream(socket.getInputStream());
-						int length = dis.readInt();
+						int ch1 = socket.getInputStream().read();
+						int ch2 = socket.getInputStream().read();
+						int ch3 = socket.getInputStream().read();
+						int ch4 = socket.getInputStream().read();
+						int length = (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0);
 						if (length > 0) {
 							BufferConnection bc = new BufferConnection(length);
 							byte[] message = new byte[length];
-							dis.readFully(message, 0, message.length);
+							socket.getInputStream().read(message, 0, length);
 							bc.writeBytes(message);
 							new Thread(new Runnable() {
 

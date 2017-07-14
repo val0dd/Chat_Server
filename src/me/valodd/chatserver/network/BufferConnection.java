@@ -232,6 +232,12 @@ public class BufferConnection {
 	}
 
 	public byte[] getAllBytes() {
+		if (sizebuff == buff.length)
+			return buff;
+		byte[] buff = new byte[sizebuff];
+		gotoPointer(0);
+		for (int i = 0; i < sizebuff; i++)
+			buff[i] = this.buff[i];
 		return buff;
 	}
 
